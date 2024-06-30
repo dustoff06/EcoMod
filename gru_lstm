@@ -1,0 +1,138 @@
+import numpy as np
+
+# Activation functions
+def sigmoid(x):
+    return 1 / (1 + np.exp(-x))
+
+def tanh(x):
+    return np.tanh(x)
+
+class GRUCell:
+    def __init__(self, input_size, hidden_size):
+        self.input_size = input_size
+        self.hidden_size = hidden_size
+
+        # Initialize weights and biases for update gate
+        self.Wz = np.random.randn(hidden_size, input_size)
+        self.Uz = np.random.randn(hidden_size, hidden_size)
+        self.bz = np.zeros((hidden_size, 1))
+
+        # Initialize weights and biases for reset gate
+        self.Wr = np.random.randn(hidden_size, input_size)
+        self.Ur = np.random.randn(hidden_size, hidden_size)
+        self.br = np.zeros((hidden_size, 1))
+
+        # Initialize weights and biases for candidate hidden state
+        self.Wh = np.random.randn(hidden_size, input_size)
+        self.Uh = np.random.randn(hidden_size, hidden_size)
+        self.bh = np.zeros((hidden_size, 1))
+
+    def forward(self, x, h_prev):
+        # Compute update gate
+        z = sigmoid(np.dot(self.Wz, x) + np.dot(self.Uz, h_prev) + self.bz)
+        
+        # Compute reset gate
+        r = sigmoid(np.dot(self.Wr, x) + np.dot(self.Ur, h_prev) + self.br)
+        
+        # Compute candidate hidden state
+        h_hat = tanh(np.dot(self.Wh, x) + np.dot(self.Uh, r * h_prev) + self.bh)
+        
+        # Compute the next hidden state
+        h_next = (1 - z) * h_prev + z * h_hat
+
+        return h_next
+
+# Example usage
+input_size = 3   # Size of input vector
+hidden_size = 2  # Size of hidden state
+
+# Create a GRU cell
+gru_cell = GRUCell(input_size, hidden_size)
+
+# Random input vector
+x = np.random.randn(input_size, 1)
+
+# Previous hidden state
+h_prev = np.zeros((hidden_size, 1))
+
+# Forward pass through the GRU cell
+h_next = gru_cell.forward(x, h_prev)
+
+print("Next hidden state:\n", h_next)
+
+### LSTM
+
+import numpy as np
+
+# Activation functions
+def sigmoid(x):
+    return 1 / (1 + np.exp(-x))
+
+def tanh(x):
+    return np.tanh(x)
+
+class LSTMCell:
+    def __init__(self, input_size, hidden_size):
+        self.input_size = input_size
+        self.hidden_size = hidden_size
+
+        # Initialize weights and biases for input gate
+        self.Wi = np.random.randn(hidden_size, input_size)
+        self.Ui = np.random.randn(hidden_size, hidden_size)
+        self.bi = np.zeros((hidden_size, 1))
+
+        # Initialize weights and biases for forget gate
+        self.Wf = np.random.randn(hidden_size, input_size)
+        self.Uf = np.random.randn(hidden_size, hidden_size)
+        self.bf = np.zeros((hidden_size, 1))
+
+        # Initialize weights and biases for cell state
+        self.Wc = np.random.randn(hidden_size, input_size)
+        self.Uc = np.random.randn(hidden_size, hidden_size)
+        self.bc = np.zeros((hidden_size, 1))
+
+        # Initialize weights and biases for output gate
+        self.Wo = np.random.randn(hidden_size, input_size)
+        self.Uo = np.random.randn(hidden_size, hidden_size)
+        self.bo = np.zeros((hidden_size, 1))
+
+    def forward(self, x, h_prev, c_prev):
+        # Compute input gate
+        i = sigmoid(np.dot(self.Wi, x) + np.dot(self.Ui, h_prev) + self.bi)
+        
+        # Compute forget gate
+        f = sigmoid(np.dot(self.Wf, x) + np.dot(self.Uf, h_prev) + self.bf)
+        
+        # Compute candidate cell state
+        c_hat = tanh(np.dot(self.Wc, x) + np.dot(self.Uc, h_prev) + self.bc)
+        
+        # Compute cell state
+        c_next = f * c_prev + i * c_hat
+        
+        # Compute output gate
+        o = sigmoid(np.dot(self.Wo, x) + np.dot(self.Uo, h_prev) + self.bo)
+        
+        # Compute hidden state
+        h_next = o * tanh(c_next)
+
+        return h_next, c_next
+
+# Example usage
+input_size = 3   # Size of input vector
+hidden_size = 2  # Size of hidden state
+
+# Create an LSTM cell
+lstm_cell = LSTMCell(input_size, hidden_size)
+
+# Random input vector
+x = np.random.randn(input_size, 1)
+
+# Previous hidden state and cell state
+h_prev = np.zeros((hidden_size, 1))
+c_prev = np.zeros((hidden_size, 1))
+
+# Forward pass through the LSTM cell
+h_next, c_next = lstm_cell.forward(x, h_prev, c_prev)
+
+print("Next hidden state:\n", h_next)
+print("Next cell state:\n", c_next)
